@@ -8,10 +8,15 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 
 from handlers.commands import router as commands_router
+from handlers.menu import router as menu_router
 from base.queries.user import nickname as get_user_by_nickname
 from base.commands.user import add as add_user
 from tasks.dummy import DummyTask
 from tasks.tasker import Tasker
+
+"""
+This module contains the main entry point of the bot.
+"""
 
 configuration = Config()
 dp = Dispatcher()
@@ -41,7 +46,7 @@ async def main():
             return
 
     # Start the bot
-    dp.include_router(commands_router)
+    dp.include_routers(commands_router, menu_router)
     dp.startup.register(on_startup)
     await dp.start_polling(bot)
 
