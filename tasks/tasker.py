@@ -1,7 +1,5 @@
 import asyncio
 
-from aiogram import Bot
-
 from tasks.task import Task
 
 

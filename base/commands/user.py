@@ -6,7 +6,7 @@ from base.model import User as UserModel
 from base.queries.user import nickname as get_user_by_nickname
 
 
-def add(tid: int, name: str, fullname: str, nickname: str) -> Optional[UserModel]:
+def add(tid: Optional[int], name: Optional[str], fullname: Optional[str], nickname: str) -> Optional[UserModel]:
     """
     Add user to database
 
@@ -19,7 +19,7 @@ def add(tid: int, name: str, fullname: str, nickname: str) -> Optional[UserModel
     """
 
     session = Session()
-    user = User(id=tid, name=name, fullname=fullname, nickname=nickname)
+    user = User(tgid=tid, name=name, fullname=fullname, nickname=nickname)
     session.add(user)
     session.commit()
     session.close()
@@ -37,7 +37,7 @@ def update(user: TelegramUser) -> Optional[UserModel]:
     ruser = None
     db_user = session.query(User).filter(User.nickname == user.username).first()
     if db_user:
-        db_user.id = user.id
+        db_user.tgid = user.id
         db_user.name = user.first_name
         db_user.fullname = user.full_name
         ruser = UserModel(db_user)

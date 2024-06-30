@@ -20,8 +20,11 @@ bot = Bot(token=configuration.TOKEN, default=DefaultBotProperties(parse_mode=Par
 
 async def on_startup():
     tasker = Tasker()
+
     # Add tasks here
     tasker.add_task(DummyTask(5))
+
+    # Run the tasks
     _ = asyncio.create_task(tasker.run())
 
 

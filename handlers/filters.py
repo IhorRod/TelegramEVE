@@ -10,7 +10,7 @@ class NicknameFilter(BaseFilter):
     async def __call__(self, message: Message) -> bool:
         user = get_user_by_nickname(message.from_user.username)
         whitelisted = bool(user)
-        need_update = user.id != message.from_user.id
+        need_update = user.tgid is None or user.tgid != message.from_user.id
         if need_update:
             update_user(message.from_user)
         return whitelisted
