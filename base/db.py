@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, Integer, String, Enum, ForeignKey
+from sqlalchemy import create_engine, Column, Integer, String, Enum, ForeignKey, Boolean
 from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base
 import enum
@@ -38,6 +38,27 @@ class CharacterSubscribers(Base):
 
     def __repr__(self):
         return f"<CharacterSubscribers(id={self.id}, user_id={self.user_id}, target={self.target}, char_id={self.char_id}, filter={self.filter})>"
+
+
+class Character(Base):
+    __tablename__ = 'characters'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    char_id = Column(Integer, unique=True, nullable=False)
+    name = Column(String, nullable=False)
+    corp = Column(Integer, ForeignKey('corporations.corp_id'), nullable=True)
+    alliance = Column(String, nullable=True)
+    last_login = Column(String, nullable=True)
+    last_login_source = Column(String, nullable=True)
+
+
+class Corporation(Base):
+    __tablename__ = 'corporations'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    corp_id = Column(Integer, unique=True, nullable=False)
+    name = Column(String, nullable=False)
+    available = Column(Boolean, nullable=False)
 
 
 Base.metadata.create_all(engine)

@@ -1,2 +1,3 @@
 SQLAlchemy~=2.0.21
 aiogram~=3.8.0
+requests~=2.31.0
