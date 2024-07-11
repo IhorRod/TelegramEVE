@@ -48,3 +48,48 @@ class Notifications:
         except Exception as e:
             return False, [], str(e)
 
+    def next(self) -> Tuple[bool, List[Notification], Optional[str]]:
+        """
+        Get the next page of notifications
+
+        :return: Success, list of notifications
+        """
+        if not self._next:
+            return False, [], "No next page"
+
+        try:
+            response = Requester.ask_seat(self._next, self._token)
+            self._next = response.get("links", {}).get("next", None)
+            self._previous = response.get("links", {}).get("prev", None)
+            notifications = [Notification(notification) for notification in response.get("data", [])]
+
+            for notification in notifications:
+                if not any(notification.notification_id == n.notification_id for n in self._notifications):
+                    self._notifications.append(notification)
+
+            return True, notifications, None
+        except Exception as e:
+            return False, [], str(e)
+
+    def previous(self) -> Tuple[bool, List[Notification], Optional[str]]:
+        """
+        Get the previous page of notifications
+
+        :return: Success, list of notifications
+        """
+        if not self._previous:
+            return False, [], "No previous page"
+
+        try:
+            response = Requester.ask_seat(self._previous, self._token)
+            self._next = response.get("links", {}).get("next", None)
+            self._previous = response.get("links", {}).get("prev", None)
+            notifications = [Notification(notification) for notification in response.get("data", [])]
+
+            for notification in notifications:
+                if not any(notification.notification_id == n.notification_id for n in self._notifications):
+                    self._notifications.append(notification)
+
+            return True, notifications, None
+        except Exception as e:
+            return False, [], str(e)
