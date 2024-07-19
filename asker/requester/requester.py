@@ -1,3 +1,4 @@
+import logging
 from typing import Optional, Dict, Any, Tuple, List
 import requests
 
@@ -40,12 +41,15 @@ class Requester:
 
 
 class Pagination:
-    _next: Optional[str]
-    _previous: Optional[str]
+    _base_url: str
     _start_url: str
     _endpoint: str
     _token: str
+
+    _next: Optional[str]
+    _previous: Optional[str]
     _items: List[Any]
+    _total: int
 
     def __init__(self, base_url: str, endpoint: str, token: str, *args, **kwargs):
         """
@@ -53,7 +57,7 @@ class Pagination:
 
         :param base_url: Base URL for the API
         :param endpoint: Endpoint for the API
-        :param token: API token
+        :param token:  token
         :param args: Additional positional arguments
         :param kwargs: Additional query parameters
         """
@@ -72,22 +76,99 @@ class Pagination:
         if kwargs:
             self._start_url += "?"
             for key, value in kwargs.items():
-                self._start_url += f"{key}={value}&"
+                if value is not None:
+                    self._start_url += f"{key}={value}&"
             self._start_url = self._start_url[:-1]
 
-    async def next(self) -> Tuple[bool, List[Any], Optional[str]]:
-        """
-        Fetch the next set of items.
-        """
-        if not self._next:
-            return False, [], "No next page"
-        return await self._fetch_and_process(self._next)
+        request = Requester.ask_seat(self._start_url, self._token)
 
-    async def previous(self) -> Tuple[bool, List[Any], Optional[str]]:
-        """
-        Fetch the previous set of items.
-        """
-        if not self._previous:
-            return False, [], "No previous page"
-        return await self._fetch_and_process(self._previous)
+        self._next = request.get("links", {}).get("next", None)
+        self._previous = request.get("links", {}).get("prev", None)
+        self._items = [self._transform(item) for item in request.get("data", [])]
+        self._total = request.get("meta", {}).get("total", 0)
 
+    def __next__(self):
+        """
+        Get the next page of data
+
+        :return: None
+        """
+        if self._next:
+            request = Requester.ask_seat(self._next, self._token)
+            self._next = request.get("links", {}).get("next", None)
+            self._previous = request.get("links", {}).get("prev", None)
+            temp_items = [self._transform(item) for item in request.get("data", [])]
+
+            for item in temp_items:
+                if not self.__contains(item):
+                    self._items.append(item)
+
+    def __previous__(self):
+        """
+        Get the previous page of data
+
+        :return: None
+        """
+        if self._previous:
+            request = Requester.ask_seat(self._previous, self._token)
+            self._next = request.get("links", {}).get("next", None)
+            self._previous = request.get("links", {}).get("prev", None)
+            temp_items = [self._transform(item) for item in request.get("data", [])]
+
+            for item in temp_items:
+                if not self.__contains(item):
+                    self._items.append(item)
+
+    def _equal(self, one: Any, other: Any) -> bool:
+        """
+        Compare two items. This method should be overridden by the child class
+
+        :param one: First item
+        :param other: Second item
+        :return: True if the items are equal, False otherwise
+        """
+        raise NotImplementedError
+
+    def _transform(self, item: Dict) -> Any:
+        """
+        Transform the item from raw to smth of BaseObject. This method should be overridden by the child class
+
+        :param item: Item to transform
+        :return: Transformed item
+        """
+        raise NotImplementedError
+
+    def _warn_if_not_total(self) -> str:
+        """
+        Warn if the total number of items in meta is different from the actual number of items
+        Message should be returned
+        Should be overridden by the child class
+        """
+        raise NotImplementedError
+
+
+    def __contains(self, item: Any) -> bool:
+        """
+        Check if the item is already in the list
+
+        :param item: Item to check
+        :return: True if the item is already in the list, False otherwise
+        """
+        for i in self._items:
+            if self._equal(i, item):
+                return True
+        return False
+
+    def collect(self) -> List[Any]:
+        """
+        Collect all the data from the API
+
+        :return: None
+        """
+        while self._next:
+            self.__next__()
+
+        if len(self._items) != self._total:
+            logging.warning(self._warn_if_not_total())
+
+        return self._items

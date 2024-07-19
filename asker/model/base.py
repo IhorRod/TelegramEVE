@@ -14,4 +14,4 @@ class BaseObject:
 
         :return: None
         """
-        pass
+        raise NotImplementedError
