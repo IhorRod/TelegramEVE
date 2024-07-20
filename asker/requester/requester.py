@@ -1,6 +1,7 @@
 import logging
 from typing import Optional, Dict, Any, Tuple, List
 import requests
+from abc import ABC, abstractmethod
 
 
 class Requester:
@@ -40,35 +41,35 @@ class Requester:
         return Requester.__request(url, headers=headers)
 
 
-class Pagination:
+class Pagination(ABC):
     _base_url: str
-    _start_url: str
-    _endpoint: str
     _token: str
 
+    _start_url: str
     _next: Optional[str]
     _previous: Optional[str]
     _items: List[Any]
     _total: int
 
-    def __init__(self, base_url: str, endpoint: str, token: str, *args, **kwargs):
+    def __init__(self, base_url: str, token: str, *args, **kwargs):
         """
         Initialize the pagination object
 
         :param base_url: Base URL for the API
-        :param endpoint: Endpoint for the API
         :param token:  token
         :param args: Additional positional arguments
         :param kwargs: Additional query parameters
         """
         self._base_url = base_url
-        self._endpoint = endpoint
         self._token = token
         self._next = None
         self._previous = None
         self._items = []
 
+        print(f"Endpoint: {self._endpoint}")
+
         self._start_url = f"{self._base_url}/{self._endpoint}"
+        print(f"Start URL: {self._start_url}")
         if args:
             for arg in args:
                 self._start_url += f"/{arg}"
@@ -119,6 +120,7 @@ class Pagination:
                 if not self.__contains(item):
                     self._items.append(item)
 
+    @abstractmethod
     def _equal(self, one: Any, other: Any) -> bool:
         """
         Compare two items. This method should be overridden by the child class
@@ -127,8 +129,9 @@ class Pagination:
         :param other: Second item
         :return: True if the items are equal, False otherwise
         """
-        raise NotImplementedError
+        ...
 
+    @abstractmethod
     def _transform(self, item: Dict) -> Any:
         """
         Transform the item from raw to smth of BaseObject. This method should be overridden by the child class
@@ -136,16 +139,27 @@ class Pagination:
         :param item: Item to transform
         :return: Transformed item
         """
-        raise NotImplementedError
+        ...
 
+    @property
+    @abstractmethod
+    def _endpoint(self) -> str:
+        """
+        Get the endpoint for the API
+
+        :return: Endpoint
+        """
+        ...
+
+    @property
+    @abstractmethod
     def _warn_if_not_total(self) -> str:
         """
         Warn if the total number of items in meta is different from the actual number of items
         Message should be returned
         Should be overridden by the child class
         """
-        raise NotImplementedError
-
+        ...
 
     def __contains(self, item: Any) -> bool:
         """
