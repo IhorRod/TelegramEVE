@@ -14,6 +14,7 @@ from config import *
 from handlers.commands import router as commands_router
 from handlers.menu import router as menu_router
 from tasks.dummy import DummyTask
+from tasks.subscribers.dummy import DummySubscriber
 from tasks.task import Task
 
 """
@@ -29,7 +30,7 @@ scheduler = AsyncIOScheduler()
 async def on_startup():
     # Collection of tasks to be run on startup
     tasks_to_start: List[Task] = [
-        DummyTask()
+        DummyTask([DummySubscriber()])
     ]
 
     # Add the bot to the database
