@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
-from typing import Dict
+from typing import Dict, List
 from strenum import StrEnum
+
+from tasks.subscribers.subscriber import Subscriber
 
 
 class Trigger(StrEnum):
@@ -10,6 +12,10 @@ class Trigger(StrEnum):
 
 
 class Task(ABC):
+    __subscribers: List[Subscriber]
+
+    def __init__(self, subscribers: List[Subscriber]):
+        self.__subscribers = subscribers
 
     @property
     @abstractmethod
@@ -56,3 +62,11 @@ class Task(ABC):
         The function that will be executed by the task.
         """
         ...
+
+    def _info(self, message: str):
+        for subscriber in self.__subscribers:
+            subscriber.info(message)
+
+    def _error(self, message: str):
+        for subscriber in self.__subscribers:
+            subscriber.error(message)

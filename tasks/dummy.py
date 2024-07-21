@@ -1,12 +1,14 @@
 import logging
-from typing import Dict
+from typing import Dict, List
 
+from tasks.subscribers.subscriber import Subscriber
 from tasks.task import Task, Trigger
 
 
 class DummyTask(Task):
 
-    def __init__(self):
+    def __init__(self, subscribers: List[Subscriber]):
+        super().__init__(subscribers)
         self.counter = 0
 
     @property
@@ -18,5 +20,5 @@ class DummyTask(Task):
         return {'seconds': 5}
 
     def _func(self):
-        logging.info(f"DummyTask :: Counter: {self.counter}")
+        self._info(f"Counter: {self.counter}")
         self.counter += 1
