@@ -1,7 +1,7 @@
 from abc import ABC
 from typing import Optional, List
 
-from asker.model.character import Notification
+from asker.model.character import Notification, Mail
 from asker.requester.requester import Pagination
 
 
@@ -34,3 +34,20 @@ class Notifications(Character):
     @property
     def _endpoint(self) -> str:
         return "api/v2/character/notifications"
+
+
+class Mails(Character):
+
+    def _equal(self, one: Mail, other: Mail) -> bool:
+        return one.mail_id == other.mail_id
+
+    def _transform(self, item: dict) -> Mail:
+        return Mail(item)
+
+    def collect(self) -> List[Mail]:
+        return super().collect()
+
+    @property
+    def _endpoint(self) -> str:
+        return "api/v2/character/mail"
+
