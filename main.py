@@ -1,7 +1,6 @@
 import asyncio
 import logging
 import sys
-from typing import List
 
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
@@ -13,9 +12,8 @@ from base.queries.user import nickname as get_user_by_nickname
 from config import *
 from handlers.commands import router as commands_router
 from handlers.menu import router as menu_router
-from tasks.dummy import DummyTask
-from tasks.subscribers.dummy import DummySubscriber
-from tasks.task import Task
+from persistence.tasker import TaskFactory
+from persistence.subscribers import SubscriberFactory
 
 """
 This module contains the main entry point of the bot.
@@ -29,12 +27,11 @@ scheduler = AsyncIOScheduler()
 
 async def on_startup():
     # Collection of tasks to be run on startup
-    tasks_to_start: List[Task] = [
-        DummyTask([DummySubscriber()])
-    ]
+    subsfactory = SubscriberFactory(configuration.SUBSCRIBERS)
+    taskfactory = TaskFactory(configuration.TASKS, subsfactory)
 
     # Add the bot to the database
-    for task in tasks_to_start:
+    for task in taskfactory.collect():
         scheduler.add_job(task.func, task.trigger, **task.timer, id=task.id, name=task.name)
 
     # Start the scheduler

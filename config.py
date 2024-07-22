@@ -1,3 +1,4 @@
+import json
 import os
 
 
@@ -18,11 +19,20 @@ class Config:
     BOOTSTRAP_USER: str
         The user that will be used to bootstrap the bot in the Telegram.
 
+    SUBSCRIBERS: dict
+        A dictionary that stores the subscribers of the bot with configs, must be a dictionary with the subscriber name
+        and specification.
+
+    TASKS: dict A dictionary that stores the tasks of the bot with configs, must be a dictionary with the task name
+        and specification.
+
     """
     TOKEN = None
     SEAT_URL = None
     SEAT_TOKEN = None
     BOOTSTRAP_USER = None
+    SUBSCRIBERS = {}
+    TASKS = {}
 
     def __init__(self):
         self.TOKEN = os.environ.get('TOKEN')
@@ -44,3 +54,9 @@ class Config:
 
         if not self.BOOTSTRAP_USER:
             raise ValueError("BOOTSTRAP_USER is not set")
+
+        with open("config.json", "r") as file:
+            config = json.load(file)
+
+            self.SUBSCRIBERS = config.get('subscribers', {})
+            self.TASKS = config.get('tasks', {})

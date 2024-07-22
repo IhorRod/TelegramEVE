@@ -1,5 +1,5 @@
-# Use Python 3.9.8 as the base image
-FROM python:3.9.8
+# Use Python 3.10 as the base image
+FROM python:3.10
 
 # Set the working directory
 WORKDIR /usr/src/app

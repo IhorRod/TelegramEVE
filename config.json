@@ -1,0 +1,13 @@
+{
+  "subscribers": {
+    "dummy": {
+      "specification": "dummy"
+    }
+  },
+  "tasks": {
+    "dummy": {
+      "specification": "dummy",
+      "subscribers": ["dummy"]
+    }
+  }
+}
