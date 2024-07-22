@@ -1,9 +1,10 @@
 from typing import List
-
-from persistence.factory import AbstractFactory
 from strenum import StrEnum
 
-from persistence.subscribers import SubscriberFactory
+
+from .factory import AbstractFactory
+from .subscribers import SubscriberFactory
+
 from tasks.subscribers.subscriber import Subscriber
 from tasks.task import Task
 

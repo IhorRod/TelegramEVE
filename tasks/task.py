@@ -57,16 +57,16 @@ class Task(ABC):
         return self._func
 
     @abstractmethod
-    def _func(self):
+    async def _func(self):
         """
         The function that will be executed by the task.
         """
         ...
 
-    def _info(self, message: str):
+    async def _info(self, message: str):
         for subscriber in self.__subscribers:
-            subscriber.info(message)
+            await subscriber.info(message)
 
-    def _error(self, message: str):
+    async def _error(self, message: str):
         for subscriber in self.__subscribers:
-            subscriber.error(message)
+            await subscriber.error(message)

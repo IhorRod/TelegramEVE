@@ -19,6 +19,6 @@ class DummyTask(Task):
     def timer(self) -> Dict[str, int]:
         return {'seconds': 5}
 
-    def _func(self):
-        self._info(f"Counter: {self.counter}")
+    async def _func(self):
+        await self._info(f"Counter: {self.counter}")
         self.counter += 1

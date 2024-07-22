@@ -1,6 +1,6 @@
 from typing import Dict, Any, Optional
 
-from persistence.factory import AbstractFactory
+from .factory import AbstractFactory
 from tasks.subscribers.subscriber import Subscriber
 from strenum import StrEnum
 
