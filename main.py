@@ -44,7 +44,7 @@ async def main():
     user = get_user_by_nickname(configuration.BOOTSTRAP_USER)
 
     if not user:
-        user = add_user(0, 'Bootstrap User', 'Bootstrap User', configuration.BOOTSTRAP_USER)
+        user = add_user(0, 'Bootstrap TgUser', 'Bootstrap TgUser', configuration.BOOTSTRAP_USER)
         if user:
             logging.info(f"Bootstrap user added to the database: {user.nickname}")
         else:

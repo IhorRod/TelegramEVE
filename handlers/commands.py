@@ -24,6 +24,6 @@ async def cmd_whitelist(message: types.Message):
     nickname = message.text.split(' ')[1]
     user = add_user(None, None, None, nickname)
     if user:
-        await message.answer(f'User {nickname} added to the whitelist')
+        await message.answer(f'TgUser {nickname} added to the whitelist')
     else:
         await message.answer(f'Failed to add user {nickname} to the whitelist')

@@ -1,12 +1,14 @@
-from base.db import User as DBUSer, CharacterSubscribers as DBCharacterSubscribers
+import json
+
+from .db import TgUser as DBTGUSer, Subscribes as DBSubscribers
 
 
 class User:
     """
-    User model
+    TgUser model
     """
 
-    def __init__(self, user: DBUSer):
+    def __init__(self, user: DBTGUSer):
         self.id = user.id
         self.tgid = user.tgid
         self.name = user.name
@@ -14,14 +16,14 @@ class User:
         self.nickname = user.nickname
 
 
-class CharacterSubscribers:
+class Subscription:
     """
     Character subscribers model
     """
 
-    def __init__(self, subscriber: DBCharacterSubscribers):
+    def __init__(self, subscriber: DBSubscribers):
         self.id = subscriber.id
-        self.user_id = subscriber.user_id
-        self.target = subscriber.target
-        self.char_id = subscriber.char_id
-        self.filter = subscriber.filter
+        self.sub_deliver = subscriber.sub_deliver
+        self.sub_id = subscriber.sub_id
+        self.sub_type = subscriber.sub_type
+        self.filter: dict = json.loads(subscriber.filter)

@@ -1,8 +1,8 @@
 from typing import Optional, List
-from sqlalchemy import desc, asc
+from sqlalchemy import asc
 
-from base.db import User, Session
-from base.model import User as UserModel
+from ..db import TgUser, Session
+from ..model import User as UserModel
 
 
 def nickname(nick: str) -> Optional[UserModel]:
@@ -11,12 +11,12 @@ def nickname(nick: str) -> Optional[UserModel]:
 
     :param nick: Telegram nickname
 
-    :return: User instance
+    :return: TgUser instance
     """
 
     session = Session()
     ruser = None
-    user = session.query(User).filter(User.nickname == nick).first()
+    user = session.query(TgUser).filter(TgUser.nickname == nick).first()
     if user:
         ruser = UserModel(user)
     session.close()
@@ -27,16 +27,16 @@ def users(offset: Optional[int] = None, limit: Optional[int] = None) -> List[Use
     """
     Get all users from the database
 
-    :return: list of User instances
+    :return: list of TgUser instances
     """
 
     session = Session()
-    users = (session.query(User)
-             .order_by(asc(User.id))
-             .offset(offset)
-             .limit(limit)
-             .all())
-    rusers = [UserModel(user) for user in users]
+    fusers = (session.query(TgUser)
+              .order_by(asc(TgUser.id))
+              .offset(offset)
+              .limit(limit)
+              .all())
+    rusers = [UserModel(user) for user in fusers]
     session.close()
     return rusers
 
@@ -49,6 +49,6 @@ def count() -> int:
     """
 
     session = Session()
-    count = session.query(User).count()
+    counter = session.query(TgUser).count()
     session.close()
-    return count
+    return counter

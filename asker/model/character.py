@@ -1,6 +1,6 @@
 from typing import Dict, Any
 
-from asker.model.base import BaseObject
+from .base import BaseObject
 
 
 class Notification(BaseObject):

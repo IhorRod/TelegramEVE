@@ -1,8 +1,8 @@
 from abc import ABC
 from typing import Optional, List
 
-from asker.model.character import Notification, Mail
-from asker.requester.requester import Pagination
+from ..model.character import Notification, Mail
+from .requester import Pagination
 
 
 class Character(Pagination, ABC):
