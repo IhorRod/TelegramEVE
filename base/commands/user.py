@@ -1,9 +1,9 @@
 from typing import Optional
 
-from base.db import TgUser, Session
+from ..db import TgUser, Session
 from aiogram.types.user import User as TelegramUser
-from base.model import User as UserModel
-from base.queries.user import nickname as get_user_by_nickname
+from ..model import User as UserModel
+from ..queries.user import nickname as get_user_by_nickname
 
 
 def add(tid: Optional[int], name: Optional[str], fullname: Optional[str], nickname: str) -> Optional[UserModel]:

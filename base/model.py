@@ -1,6 +1,6 @@
 import json
 
-from .db import TgUser as DBTGUSer, Subscribes as DBSubscribers
+from .db import TgUser as DBTGUSer, Subscribes as DBSubscribers, SubscriptionHistory as DBTypeHistory
 
 
 class User:
@@ -27,3 +27,10 @@ class Subscription:
         self.sub_id = subscriber.sub_id
         self.sub_type = subscriber.sub_type
         self.filter: dict = json.loads(subscriber.filter)
+
+
+class TypeHistory:
+    def __init__(self, history: DBTypeHistory):
+        self.id = history.id
+        self.item_id = history.item_id
+        self.item_type = history.item_type

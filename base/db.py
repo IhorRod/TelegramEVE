@@ -44,8 +44,8 @@ class SubscriptionHistory(Base):
     __tablename__ = 'history'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    type = Column(Enum(SubscriptionTypes), nullable=False)
     item_id = Column(Integer, nullable=False)
+    item_type = Column(Enum(SubscriptionTypes), nullable=False)
 
 
 Base.metadata.create_all(engine)
