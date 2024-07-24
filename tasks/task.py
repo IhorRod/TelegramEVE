@@ -18,8 +18,8 @@ class Trigger(StrEnum):
 class Task(ABC):
     __subscribers: Dict[SubscriptionDelivers, Subscriber]
 
-    def __init__(self, subscribers: List[Subscriber]):
-        self.__subscribers = {subscriber.sub_type: subscriber for subscriber in subscribers}
+    def __init__(self, subscribers: Dict[SubscriptionDelivers, Subscriber]):
+        self.__subscribers = subscribers
 
     @property
     @abstractmethod

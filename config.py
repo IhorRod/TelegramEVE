@@ -58,5 +58,5 @@ class Config:
         with open("config.json", "r") as file:
             config = json.load(file)
 
-            self.SUBSCRIBERS = config.get('subscribers', {})
-            self.TASKS = config.get('tasks', {})
+            self.SUBSCRIBERS = config.get('subscribers', [])
+            self.TASKS = config.get('tasks', [])

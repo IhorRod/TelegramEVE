@@ -5,7 +5,7 @@ from aiogram import Bot
 from base.queries.user import get_id as get_user_id
 
 
-class Telegram(Subscriber):
+class TelegramSubscriber(Subscriber):
     _bot: Bot
 
     def __init__(self, bot: Bot):

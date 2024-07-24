@@ -1,13 +1,13 @@
 from typing import Dict, List
 
-from base.db import SubscriptionTypes
+from base.db import SubscriptionTypes, SubscriptionDelivers
 from .subscribers.subscriber import Subscriber
 from .task import Task, Trigger
 
 
 class DummyTask(Task):
 
-    def __init__(self, subscribers: List[Subscriber]):
+    def __init__(self, subscribers: Dict[SubscriptionDelivers, Subscriber]):
         super().__init__(subscribers)
         self.counter = 0
 

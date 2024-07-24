@@ -1,13 +1,8 @@
 {
-  "subscribers": {
-    "dummy": {
+  "subscribers": [ "dummy", "tg" ],
+  "tasks": [
+    {
       "specification": "dummy"
     }
-  },
-  "tasks": {
-    "dummy": {
-      "specification": "dummy",
-      "subscribers": ["dummy"]
-    }
-  }
+  ]
 }

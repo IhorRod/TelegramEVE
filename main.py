@@ -27,7 +27,7 @@ scheduler = AsyncIOScheduler()
 
 async def on_startup():
     # Collection of tasks to be run on startup
-    subsfactory = SubscriberFactory(configuration.SUBSCRIBERS)
+    subsfactory = SubscriberFactory(configuration.SUBSCRIBERS, tgbot=bot)
     taskfactory = TaskFactory(configuration.TASKS, subsfactory)
 
     # Add the bot to the database

@@ -1,7 +1,7 @@
-from typing import List
+from typing import List, Dict
 from strenum import StrEnum
 
-
+from base.db import SubscriptionDelivers
 from .factory import AbstractFactory
 from .subscribers import SubscriberFactory
 
@@ -17,11 +17,13 @@ class TaskFactory(AbstractFactory):
     _configuration: dict
     _arguments: dict
     _subfactory: SubscriberFactory
+    _subscribers: Dict[SubscriptionDelivers, Subscriber]
 
     def __init__(self, configuration: dict, subfactory: SubscriberFactory, **kwargs):
         self._configuration = configuration
         self._subfactory = subfactory
         self._arguments = kwargs
+        self._subscribers = subfactory.subscribers()
 
     def create(self, specification: TaskType, **kwargs) -> Task:
         """
@@ -31,11 +33,10 @@ class TaskFactory(AbstractFactory):
         :param kwargs: Keyword arguments to pass to the task constructor.
         :return: The created task.
         """
-        subscribers: List[Subscriber] = kwargs.get('subscribers', [])
         match specification:
             case TaskType.DUMMY:
                 from tasks.dummy import DummyTask
-                return DummyTask(subscribers)
+                return DummyTask(self._subscribers)
             case _:
                 raise ValueError(f"Unknown task type: {specification}")
 
@@ -46,21 +47,14 @@ class TaskFactory(AbstractFactory):
         :return: The list of tasks.
         """
         tasks: List[Task] = []
-        for name in self._configuration:
-            taskconfig: dict = self._configuration[name]
+        for taskconfig in self._configuration:
             try:
                 specification = taskconfig['specification']
             except KeyError:
-                raise ValueError(f"Task configuration missing specification: {name}")
-
-            subscribers = [
-                self._subfactory.get(subscriber) for subscriber in taskconfig.get('subscribers', [])
-                if self._subfactory.has(subscriber)
-            ]
+                raise ValueError(f"Task configuration missing specification: {taskconfig}")
 
             taskconfig.pop("specification")
-            taskconfig.pop("subscribers")
-            task = self.create(specification, **taskconfig, subscribers=subscribers)
+            task = self.create(specification, **taskconfig)
             tasks.append(task)
 
         return tasks
