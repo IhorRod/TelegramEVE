@@ -1,5 +1,8 @@
+from base.db import SubscriptionDelivers
+from base.model import Subscription
 from .subscriber import Subscriber
 from aiogram import Bot
+from base.queries.user import get_id as get_user_id
 
 
 class Telegram(Subscriber):
@@ -8,8 +11,16 @@ class Telegram(Subscriber):
     def __init__(self, bot: Bot):
         self._bot = bot
 
-    async def info(self, message: str):
-        await self._bot.send_message(chat_id=0, text=message)
+    @property
+    def sub_type(self):
+        return SubscriptionDelivers.TG
 
-    async def error(self, message: str):
-        await self._bot.send_message(chat_id=0, text=message)
+    async def info(self, subscription: Subscription, message: str):
+        user = get_user_id(subscription.sub_id)
+        if user:
+            await self._bot.send_message(chat_id=user.tgid, text=message)
+
+    async def error(self, subscription: Subscription, message: str):
+        user = get_user_id(subscription.sub_id)
+        if user:
+            await self._bot.send_message(chat_id=user.tgid, text=message)

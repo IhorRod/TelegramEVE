@@ -5,6 +5,23 @@ from ..db import TgUser, Session
 from ..model import User as UserModel
 
 
+def get_id(user_id: int) -> Optional[UserModel]:
+    """
+    Get user by id
+
+    :param user_id: Telegram user id
+
+    :return: TgUser instance
+    """
+
+    session = Session()
+    ruser = None
+    user = session.query(TgUser).filter(TgUser.id == user_id).first()
+    if user:
+        ruser = UserModel(user)
+    session.close()
+    return ruser
+
 def nickname(nick: str) -> Optional[UserModel]:
     """
     Get user by nickname

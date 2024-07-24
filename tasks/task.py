@@ -1,8 +1,12 @@
+import logging
 from abc import ABC, abstractmethod
 from typing import Dict, List
 from strenum import StrEnum
 
+from base.db import SubscriptionDelivers, SubscriptionTypes
+from base.model import Subscription
 from tasks.subscribers.subscriber import Subscriber
+from base.queries.subscription import get_type as get_subscription_type
 
 
 class Trigger(StrEnum):
@@ -12,10 +16,18 @@ class Trigger(StrEnum):
 
 
 class Task(ABC):
-    __subscribers: List[Subscriber]
+    __subscribers: Dict[SubscriptionDelivers, Subscriber]
 
     def __init__(self, subscribers: List[Subscriber]):
-        self.__subscribers = subscribers
+        self.__subscribers = {subscriber.sub_type: subscriber for subscriber in subscribers}
+
+    @property
+    @abstractmethod
+    def task_type(self) -> SubscriptionTypes:
+        """
+        Returns the type of the task.
+        """
+        ...
 
     @property
     @abstractmethod
@@ -63,10 +75,26 @@ class Task(ABC):
         """
         ...
 
+    async def __info(self, subscription: Subscription, message: str):
+        try:
+            subscriber = self.__subscribers[subscription.sub_deliver]
+            await subscriber.info(subscription, message)
+        except KeyError:
+            logging.error(f"Subscriber {subscription.sub_deliver} not found")
+
+    async def __error(self, subscription: Subscription, message: str):
+        try:
+            subscriber = self.__subscribers[subscription.sub_deliver]
+            await subscriber.error(subscription, message)
+        except KeyError:
+            logging.error(f"Subscriber {subscription.sub_deliver} not found")
+
     async def _info(self, message: str):
-        for subscriber in self.__subscribers:
-            await subscriber.info(message)
+        subscriptions = get_subscription_type(self.task_type)
+        for subscription in subscriptions:
+            await self.__info(subscription, message)
 
     async def _error(self, message: str):
-        for subscriber in self.__subscribers:
-            await subscriber.error(message)
+        subscriptions = get_subscription_type(self.task_type)
+        for subscription in subscriptions:
+            await self.__error(subscription, message)

@@ -23,6 +23,7 @@ class TgUser(Base):
 class SubscriptionTypes(enum.Enum):
     MAIL = 1
     NOTIFICATIONS = 2
+    DUMMY = 3
 
 
 class SubscriptionDelivers(enum.Enum):

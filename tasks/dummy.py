@@ -1,8 +1,8 @@
-import logging
 from typing import Dict, List
 
-from tasks.subscribers.subscriber import Subscriber
-from tasks.task import Task, Trigger
+from base.db import SubscriptionTypes
+from .subscribers.subscriber import Subscriber
+from .task import Task, Trigger
 
 
 class DummyTask(Task):
@@ -10,6 +10,10 @@ class DummyTask(Task):
     def __init__(self, subscribers: List[Subscriber]):
         super().__init__(subscribers)
         self.counter = 0
+
+    @property
+    def task_type(self):
+        return SubscriptionTypes.DUMMY
 
     @property
     def trigger(self) -> Trigger:

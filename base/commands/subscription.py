@@ -1,10 +1,11 @@
 import logging
 import json
+from typing import Optional
 
 from ..db import Session, Subscribes, SubscriptionTypes, SubscriptionDelivers
 
 
-def add(sub_deliver: SubscriptionDelivers, sub_id: int, sub_type: SubscriptionTypes, filterer: dict) -> bool:
+def add(sub_deliver: SubscriptionDelivers, sub_id: Optional[int], sub_type: SubscriptionTypes, filterer: dict) -> bool:
     session = Session()
     try:
         session.add(Subscribes(sub_deliver=sub_deliver, sub_id=sub_id, sub_type=sub_type, filter=json.dumps(filterer)))
