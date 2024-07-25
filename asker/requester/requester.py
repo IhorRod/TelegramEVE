@@ -66,10 +66,7 @@ class Pagination(ABC):
         self._previous = None
         self._items = []
 
-        print(f"Endpoint: {self._endpoint}")
-
         self._start_url = f"{self._base_url}/{self._endpoint}"
-        print(f"Start URL: {self._start_url}")
         if args:
             for arg in args:
                 self._start_url += f"/{arg}"
@@ -183,6 +180,6 @@ class Pagination(ABC):
             self.__next__()
 
         if len(self._items) != self._total:
-            logging.warning(self._warn_if_not_total())
+            logging.warning(self._warn_if_not_total)
 
         return self._items

@@ -3,6 +3,7 @@ from typing import Dict, Any
 
 
 class BaseObject(ABC):
+    obj_id: int
     _raw: Dict[str, Any]
 
     def __init__(self, json: dict):

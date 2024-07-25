@@ -1,7 +1,9 @@
-from typing import List, Dict
+from typing import List, Dict, Optional
 from strenum import StrEnum
 
-from base.db import SubscriptionDelivers
+from base.db import SubscriptionDelivers, SubscriptionTypes
+from config import Config
+from .asker import AskerPaginationFactory
 from .factory import AbstractFactory
 from .subscribers import SubscriberFactory
 
@@ -11,19 +13,26 @@ from tasks.task import Task
 
 class TaskType(StrEnum):
     DUMMY = 'dummy'
+    MAILS = 'mails'
+    NOTIFICATIONS = 'notifications'
 
 
 class TaskFactory(AbstractFactory):
-    _configuration: dict
+    _configuration: Config
     _arguments: dict
     _subfactory: SubscriberFactory
     _subscribers: Dict[SubscriptionDelivers, Subscriber]
+    _pafactory: Optional[AskerPaginationFactory]
 
-    def __init__(self, configuration: dict, subfactory: SubscriberFactory, **kwargs):
+    _tasks = Dict[SubscriptionTypes, Task]
+
+    def __init__(self, configuration: Config, subfactory: SubscriberFactory, **kwargs):
         self._configuration = configuration
         self._subfactory = subfactory
         self._arguments = kwargs
         self._subscribers = subfactory.subscribers()
+        self._pafactory = None
+        self._tasks = {}
 
     def create(self, specification: TaskType, **kwargs) -> Task:
         """
@@ -37,6 +46,12 @@ class TaskFactory(AbstractFactory):
             case TaskType.DUMMY:
                 from tasks.dummy import DummyTask
                 return DummyTask(self._subscribers)
+            case TaskType.MAILS:
+                from tasks.character import MailTask
+                return MailTask(self._subscribers, self.__pagination_factory)
+            case TaskType.NOTIFICATIONS:
+                from tasks.character import NotificationTask
+                return NotificationTask(self._subscribers, self.__pagination_factory)
             case _:
                 raise ValueError(f"Unknown task type: {specification}")
 
@@ -47,7 +62,7 @@ class TaskFactory(AbstractFactory):
         :return: The list of tasks.
         """
         tasks: List[Task] = []
-        for taskconfig in self._configuration:
+        for taskconfig in self._configuration.TASKS:
             try:
                 specification = taskconfig['specification']
             except KeyError:
@@ -57,4 +72,22 @@ class TaskFactory(AbstractFactory):
             task = self.create(specification, **taskconfig)
             tasks.append(task)
 
+            self._tasks[task.task_type] = task
+
         return tasks
+
+    @property
+    def __pagination_factory(self) -> AskerPaginationFactory:
+        if not self._pafactory:
+            self._pafactory = AskerPaginationFactory(self._configuration.SEAT_URL, self._configuration.SEAT_TOKEN)
+
+        return self._pafactory
+
+    def get(self, task_type: SubscriptionTypes) -> Optional[Task]:
+        """
+        Get a task by its type.
+
+        :param task_type: The type of the task to get.
+        :return: The task or None if not found.
+        """
+        return self._tasks.get(task_type, None)

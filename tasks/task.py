@@ -75,26 +75,28 @@ class Task(ABC):
         """
         ...
 
-    async def __info(self, subscription: Subscription, message: str):
+    async def _info(self, subscription: Subscription, message: str):
         try:
             subscriber = self.__subscribers[subscription.sub_deliver]
             await subscriber.info(subscription, message)
         except KeyError:
             logging.error(f"Subscriber {subscription.sub_deliver} not found")
 
-    async def __error(self, subscription: Subscription, message: str):
+    async def _error(self, subscription: Subscription, message: str):
         try:
             subscriber = self.__subscribers[subscription.sub_deliver]
             await subscriber.error(subscription, message)
         except KeyError:
             logging.error(f"Subscriber {subscription.sub_deliver} not found")
 
-    async def _info(self, message: str):
-        subscriptions = get_subscription_type(self.task_type)
-        for subscription in subscriptions:
-            await self.__info(subscription, message)
+    async def _info_all(self, message: str):
+        for subscription in self._subscriptions:
+            await self._info(subscription, message)
 
-    async def _error(self, message: str):
-        subscriptions = get_subscription_type(self.task_type)
-        for subscription in subscriptions:
-            await self.__error(subscription, message)
+    async def _error_all(self, message: str):
+        for subscription in self._subscriptions:
+            await self._error(subscription, message)
+
+    @property
+    def _subscriptions(self):
+        return get_subscription_type(self.task_type)

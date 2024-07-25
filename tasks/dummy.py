@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Dict
 
 from base.db import SubscriptionTypes, SubscriptionDelivers
 from .subscribers.subscriber import Subscriber
@@ -24,5 +24,5 @@ class DummyTask(Task):
         return {'seconds': 5}
 
     async def _func(self):
-        await self._info(f"Counter: {self.counter}")
+        await self._info_all(f"Counter: {self.counter}")
         self.counter += 1

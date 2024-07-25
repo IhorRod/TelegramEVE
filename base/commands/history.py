@@ -1,21 +1,23 @@
 import logging
+from typing import Optional
 
 from ..db import Session, SubscriptionHistory, SubscriptionTypes
 from ..queries.history import exist_ids
 
 
-def add(item_id: int, item_type: SubscriptionTypes) -> bool:
+def add(item_id: int, target_id: Optional[int], item_type: SubscriptionTypes) -> bool:
     """
     Add history item to database
 
     :param item_id: ID of the item
+    :param target_id: ID of the target user/item/corporation/ etc.
     :param item_type: Type of the item
 
     :return: True if success
     """
     session = Session()
     try:
-        history = SubscriptionHistory(item_id=item_id, item_type=item_type)
+        history = SubscriptionHistory(item_id=item_id, item_type=item_type, target_id=target_id)
         session.add(history)
         session.commit()
         session.close()
@@ -28,24 +30,25 @@ def add(item_id: int, item_type: SubscriptionTypes) -> bool:
         session.close()
 
 
-def add_ids(ids: list[int], item_type: SubscriptionTypes) -> bool:
+def add_ids(ids: list[int], target_id: Optional[int], item_type: SubscriptionTypes) -> bool:
     """
     Add history items to database. This is used when multiple items are added at once.
     Should add only ids that are not already in the history.
 
     :param ids: List of IDs of the items
+    :param target_id: ID of the target user/item/corporation/ etc.
     :param item_type: Type of the item
 
     :return: True if success
     """
-    ids_check = exist_ids(ids, item_type)
+    ids_check = exist_ids(ids, target_id, item_type)
     ids = [item_id for item_id, check in zip(ids, ids_check) if not check]
     if len(ids) == 0:
         return True
 
     session = Session()
     try:
-        history = [SubscriptionHistory(item_id=item_id, item_type=item_type) for item_id in ids]
+        history = [SubscriptionHistory(item_id=item_id, target_id=target_id, item_type=item_type) for item_id in ids]
         session.add_all(history)
         session.commit()
         session.close()

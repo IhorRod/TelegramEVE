@@ -28,7 +28,7 @@ scheduler = AsyncIOScheduler()
 async def on_startup():
     # Collection of tasks to be run on startup
     subsfactory = SubscriberFactory(configuration.SUBSCRIBERS, tgbot=bot)
-    taskfactory = TaskFactory(configuration.TASKS, subsfactory)
+    taskfactory = TaskFactory(configuration, subsfactory)
 
     # Add the bot to the database
     for task in taskfactory.collect():
@@ -37,6 +37,19 @@ async def on_startup():
     # Start the scheduler
     scheduler.start()
     logging.info("Started background scheduler")
+
+    # Testing the tasks
+    # Add a subscriber for mails to the database
+    from base.commands.subscription import add as add_subscriber
+    from base.db import SubscriptionDelivers, SubscriptionTypes
+
+    # Add dummy subscriber for MAILS
+    if add_subscriber(SubscriptionDelivers.LOG, None, 2120503761, SubscriptionTypes.MAIL, {}):
+        logging.info("Dummy subscriber for mails added to the database")
+
+    # Add telegram subscriber for MAILS
+    if add_subscriber(SubscriptionDelivers.TG, 0, 2120503761, SubscriptionTypes.MAIL, {}):
+        logging.info("Telegram subscriber for mails added to the database")
 
 
 async def main():

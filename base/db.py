@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, Integer, String, Enum
+from sqlalchemy import create_engine, Column, Integer, String, Enum, Boolean
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 import enum
@@ -38,13 +38,16 @@ class Subscribes(Base):
     sub_deliver = Column(Enum(SubscriptionDelivers), nullable=False)
     sub_id = Column(Integer, nullable=True)
     sub_type = Column(Enum(SubscriptionTypes), nullable=False)
+    target_id = Column(Integer, nullable=True)
     filter = Column(String, nullable=True)  # JSON string
+    history_started = Column(Boolean, nullable=False, default=False)
 
 
 class SubscriptionHistory(Base):
     __tablename__ = 'history'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
+    target_id = Column(Integer, nullable=True)
     item_id = Column(Integer, nullable=False)
     item_type = Column(Enum(SubscriptionTypes), nullable=False)
 

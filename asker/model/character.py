@@ -21,6 +21,8 @@ class Notification(BaseObject):
         self.is_read = self._raw["is_read"]
         self.text = self._raw["text"]
 
+        self.obj_id = self.notification_id
+
 
 class Mail(BaseObject):
     mail_id: int
@@ -37,3 +39,5 @@ class Mail(BaseObject):
         self.sender_id = int(self._raw.get("sender", {}).get("entity_id", 0))
         self.sender_name = self._raw.get("sender", {}).get("name", "")
         self.body = self._raw["body"]
+
+        self.obj_id = self.mail_id
