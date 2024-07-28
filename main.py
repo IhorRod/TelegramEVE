@@ -39,19 +39,6 @@ async def on_startup():
     scheduler.start()
     logging.info("Started background scheduler")
 
-    # Testing the tasks
-    # Add a subscriber for mails to the database
-    from base.commands.subscription import add as add_subscriber
-    from base.db import SubscriptionDelivers, SubscriptionTypes
-
-    # Add dummy subscriber for MAILS
-    if add_subscriber(SubscriptionDelivers.LOG, None, 2120503761, SubscriptionTypes.MAIL, {}):
-        logging.info("Dummy subscriber for mails added to the database")
-
-    # Add telegram subscriber for MAILS
-    if add_subscriber(SubscriptionDelivers.TG, 0, 2120503761, SubscriptionTypes.MAIL, {}):
-        logging.info("Telegram subscriber for mails added to the database")
-
 
 async def main():
     # Add the bootstrap user to the database
@@ -75,5 +62,5 @@ if __name__ == '__main__':
     # Set up logging
     logging.basicConfig(level=logging.INFO, stream=sys.stdout)
     # Turn off the logging
-    logging.getLogger('asyncio').setLevel(logging.WARNING)
+    logging.getLogger('asyncio').setLevel(logging.ERROR)
     asyncio.run(main())

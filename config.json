@@ -2,6 +2,9 @@
   "subscribers": [ "dummy", "tg" ],
   "tasks": [
     {
+      "specification": "dummy"
+    },
+    {
       "specification": "mails"
     },
     {

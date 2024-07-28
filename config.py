@@ -45,6 +45,8 @@ class Config:
         if not self.SEAT_URL:
             raise ValueError("SEAT_URL is not set")
 
+        self.SEAT_URL = self.SEAT_URL.rstrip('/')
+
         self.SEAT_TOKEN = os.environ.get('SEAT_TOKEN')
 
         if not self.SEAT_TOKEN:

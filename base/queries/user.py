@@ -22,6 +22,7 @@ def get_id(user_id: int) -> Optional[UserModel]:
     session.close()
     return ruser
 
+
 def nickname(nick: str) -> Optional[UserModel]:
     """
     Get user by nickname

@@ -1,3 +1,4 @@
+import logging
 from abc import ABC, abstractmethod
 from typing import Dict, Any
 
@@ -14,7 +15,7 @@ class BaseObject(ABC):
         try:
             self._process()
         except Exception as e:
-            print(f"Error processing {self.__class__.__name__} with {self._raw}")
+            logging.error(f"Error processing {self.__class__.__name__} with {self._raw}")
             raise e
 
     @abstractmethod
