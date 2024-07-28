@@ -6,6 +6,7 @@ from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.executors.asyncio import AsyncIOExecutor
 
 from base.commands.user import add as add_user
 from base.queries.user import nickname as get_user_by_nickname
@@ -22,7 +23,7 @@ This module contains the main entry point of the bot.
 configuration = Config()
 dp = Dispatcher()
 bot = Bot(token=configuration.TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
-scheduler = AsyncIOScheduler()
+scheduler = AsyncIOScheduler(executors={'default': AsyncIOExecutor()})
 
 
 async def on_startup():

@@ -1,3 +1,4 @@
+import logging
 from abc import ABC, abstractmethod
 from typing import Dict, List, Optional
 
@@ -20,19 +21,16 @@ class PaginationTask(Task, ABC):
         super().__init__(subscribers)
         self._collector = collector
 
-        for subscription in self._subscriptions:
-            self.collect(subscription)
-
-    def collect(self, subscription: Subscription) -> List[BaseObject]:
+    def collect(self, target_id: int) -> List[BaseObject]:
         objects: List[BaseObject] = (self._collector
-                                     .create(self.task_type, character_id=subscription.target_id)
+                                     .create(self.task_type, character_id=target_id)
                                      .collect())
 
         ids = [obj.obj_id for obj in objects]
-        checks = exist_ids(ids, subscription.target_id, self.task_type)
+        checks = exist_ids(ids, target_id, self.task_type)
         filtered = [obj for obj, check in zip(objects, checks) if not check]
 
-        add_ids([obj.obj_id for obj in filtered], subscription.target_id, self.task_type)
+        add_ids([obj.obj_id for obj in filtered], target_id, self.task_type)
 
         return filtered
 
@@ -41,16 +39,25 @@ class PaginationTask(Task, ABC):
         return Trigger.INTERVAL
 
     async def _func(self):
+        # Group subscriptions by target_id to avoid multiple queries
+        grouped = {}
         for subscription in self._subscriptions:
-            objects = self.collect(subscription)
-            if subscription.history_started:
-                for obj in objects:
-                    message = self._process(obj, subscription)
-                    if message:
-                        await self._info(subscription, message)
+            if subscription.target_id not in grouped:
+                grouped[subscription.target_id] = []
+            grouped[subscription.target_id].append(subscription)
 
-            else:
-                start_history(subscription.id)
+        for target_id, subscriptions in grouped.items():
+            objects = self.collect(target_id)
+            for subscription in subscriptions:
+                if subscription.history_started:
+                    for obj in objects:
+                        message = self._process(obj, subscription)
+                        if message:
+                            await self._info(subscription, message)
+
+                else:
+                    logging.info(f"Starting history for subscription {subscription.id} - found {len(objects)} objects")
+                    start_history(subscription.id)
 
     @abstractmethod
     def _process(self, obj: BaseObject, subscription: Subscription) -> Optional[str]:
@@ -77,7 +84,7 @@ class MailTask(PaginationTask):
 
     @property
     def timer(self) -> Dict[str, int]:
-        return {'minutes': 1}
+        return {'seconds': 20}
 
     @property
     def task_type(self) -> SubscriptionTypes:
